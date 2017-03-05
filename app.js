@@ -1,0 +1,174 @@
+'use strict'
+
+const env = process.env.NODE_ENV || 'development'
+const express = require('express')
+const request = require('request')
+const webshot = require('webshot')
+const config = require('config')
+const path = require('path')
+const del = require('del')
+const chopImage = require('./utils/chop-image')
+const MAIN = process.env.MAIN || config.get('main')
+const SERVER = process.env.SERVER || config.get('server')
+const PORT = process.env.PORT || config.get('port')
+const TOKEN = process.env.TOKEN || config.get('token')
+const MANET = process.env.MANET || config.get('manet')
+
+let engine = require('./engines/ddg')
+
+// mock some services on local
+if (env === 'development') {
+    engine = require('./mocks/engine')
+}
+
+let webshotOptions = {
+    screenSize: {
+        width: 1024,
+        height: 768
+    },
+    shotSize: {
+        width: 1024,
+        height: 'all'
+    }
+}
+
+const app = express()
+
+function validateToken(req, res, next) {
+    if (req.query.token !== TOKEN)
+        res.status(401).send()
+    else
+        next()
+}
+
+app.use(validateToken)
+
+app.get('/', function(req, res) {
+
+    console.log(`Received request: ${JSON.stringify(req.query)}`)
+
+    let sender_id = req.query.sender_id
+    let q = req.query.query
+    let max = req.query.max
+
+    engine.search({
+        q,
+        max: max
+    }, (err, links) => {
+
+        console.log(links)
+        if (err) {
+            return sendText(sender_id, `No search results can be foud for "${q}"`)
+        }
+
+        processLinks(links, 0, sender_id, function() {
+            sendText(sender_id, `End of search results for "${q}"`)
+        })
+
+    })
+
+    res.send()
+
+})
+
+function processLinks(links, index, sender_id, doneCallback) {
+    let link = links[index]
+
+    getWebsiteImage(link, sender_id, function(filename) {
+        console.log(filename)
+
+
+        processImage(filename, sender_id, function() {
+
+            if (index === links.length - 1) {
+                doneCallback()
+            } else {
+                processLinks(links, index + 1, sender_id, doneCallback)
+            }
+
+        })
+
+    })
+}
+
+function getWebsiteImage(link, sender_id, callback) {
+    var resultFile = `./public/${sender_id}-${(new Date()).getTime()}.png`
+
+    console.log(`Capturing ${link}`)
+    webshot(link, resultFile, webshotOptions, function(err) {
+        if (err) {
+            console.log(err)
+            return
+        }
+
+        console.log(`Image saved to ${resultFile}`)
+
+        callback(resultFile)
+    })
+}
+
+function processImage(filePath, sender_id, callback) {
+
+    chopImage(filePath, function each(choppedFile, index, next) {
+
+        let base_url = (env === 'development') ? `${SERVER}:${PORT}` : SERVER
+        let image_url = `${base_url}/public/${path.basename(choppedFile)}`
+        let postback_url = `${base_url}/postback?sender_id=sender_id&filename=${path.basename(choppedFile)}&token=${TOKEN}`
+
+        sendImage(sender_id, image_url, postback_url, next)
+
+    }, function done() {
+        callback()
+    })
+
+}
+
+function sendImage(sender_id, image_url, postback_url, callback) {
+    request({
+        baseUrl: MAIN,
+        uri: '/send-image',
+        qs: {
+            sender_id,
+            image_url,
+            postback_url
+        }
+    }, function(err) {
+        if (err)
+            console.log(err.toString())
+        else
+            console.log(`Successfully sent ${image_url}`)
+        if (callback) callback()
+    })
+}
+
+
+function sendText(sender_id, text, callback) {
+    request({
+        baseUrl: MAIN,
+        uri: '/send-text',
+        qs: {
+            sender_id,
+            text
+        }
+    }, function(err) {
+        if (err)
+            console.log(err.toString())
+        else
+            console.log(`Successfully sent message: ${text}`)
+        if (callback) callback()
+    })
+}
+
+app.get('/postback', function(req, res) {
+    console.log(`Postback: ${JSON.stringify(req.query)}`)
+    del([`./public/${req.query.filename}`]).then(paths => {
+        console.log('Deleted file:\n', paths.join('\n'));
+    })
+    res.send()
+})
+
+app.listen(PORT, () => {
+    console.log('Node app is running on port', PORT)
+})
+
+module.exports = app

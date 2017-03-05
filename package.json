@@ -1,0 +1,27 @@
+{
+  "name": "ajoogle-search-engine",
+  "version": "1.0.0",
+  "description": "Ajoogle Search Engine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/adonesp/ajoogle-search-engine.git"
+  },
+  "author": "Adones Pitogo, Jillberth Estillore",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/adonesp/ajoogle-search-engine#readme",
+  "dependencies": {
+    "config": "^1.25.1",
+    "ddg-scraper": "^1.0.1",
+    "del": "^2.2.2",
+    "express": "^4.15.0",
+    "image-downloader": "^2.0.3",
+    "image-size": "^0.5.1",
+    "lwip": "0.0.9",
+    "request": "^2.80.0",
+    "webshot": "^0.18.0"
+  }
+}

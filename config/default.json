@@ -1,0 +1,7 @@
+{
+  "main": "http://localhost:5000",
+  "server" : "http://127.0.0.1",
+  "port": 1234,
+  "manet" : "https://ajoogle-manet.herokuapp.com",
+  "token": "token"
+}
