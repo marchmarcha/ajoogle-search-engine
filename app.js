@@ -40,10 +40,9 @@ function validateToken(req, res, next) {
         next()
 }
 
-app.use(validateToken)
 app.use(express.static('public'))
 
-app.get('/', function(req, res) {
+app.get('/', validateToken, function(req, res) {
 
     console.log(`Received request: ${JSON.stringify(req.query)}`)
 
@@ -159,7 +158,7 @@ function sendText(sender_id, text, callback) {
     })
 }
 
-app.get('/postback', function(req, res) {
+app.get('/postback', validateToken, function(req, res) {
     console.log(`Postback: ${JSON.stringify(req.query)}`)
     del([`./public/${req.query.filename}`]).then(paths => {
         console.log('Deleted file:\n', paths.join('\n'));
