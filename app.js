@@ -115,7 +115,7 @@ function processImage(filePath, sender_id, callback) {
         let postback_url = `${base_url}/postback?sender_id=sender_id&filename=${path.basename(choppedFile)}&token=${TOKEN}`
 
         sendImage(sender_id, image_url, postback_url, function () {
-            setTimout(function() {
+            setTimeout(function() {
                 next()
             }, 1500)
         })
