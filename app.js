@@ -123,7 +123,7 @@ function processImage(filePath, sender_id, callback) {
     }, function done() {
         setTimeout(function() {
             callback()
-        }, 3000)
+        }, 4000)
     })
 
 }
