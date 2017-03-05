@@ -12,7 +12,6 @@ const MAIN = process.env.MAIN || config.get('main')
 const SERVER = process.env.SERVER || config.get('server')
 const PORT = process.env.PORT || config.get('port')
 const TOKEN = process.env.TOKEN || config.get('token')
-const MANET = process.env.MANET || config.get('manet')
 
 let engine = require('./engines/ddg')
 
