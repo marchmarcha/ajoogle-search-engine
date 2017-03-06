@@ -129,7 +129,7 @@ function processImage(filePath, sender_id, callback) {
                     console.log('Deleted file:\n', paths.join('\n'));
                 })
             }
-        }, 4000)
+        }, 1500)
     })
 
 }
