@@ -26,13 +26,12 @@ module.exports = function(filePath, eachCb, doneCb) {
         console.log(numH)
         console.log(lastH)
 
-        // do stuff with the image (if no exception)
-
-        // if (err) {
-        //     eachCb(filePath, 0)
-        //     doneCb()
-        //     return console.log(err)
-        // }
+        if (numH <= 1) {
+            // dont process to save memory
+            console.log(`No need to process image ${filePath}`)
+            eachCb(filePath, 0, doneCb)
+            return
+        }
 
         lwip.open(filePath, function(err, image) {
 
