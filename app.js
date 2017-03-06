@@ -22,11 +22,11 @@ if (env === 'development') {
 
 let webshotOptions = {
     screenSize: {
-        width: 800,
+        width: 1024,
         height: 768
     },
     shotSize: {
-        width: 800,
+        width: 1024,
         height: 'all'
     },
     streamType: 'jpg'
