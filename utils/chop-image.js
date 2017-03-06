@@ -15,10 +15,9 @@ module.exports = function(filePath, eachCb, doneCb) {
 
         var choppedFiles = []
 
-        var chopH = 768 * 3
         var dims = sizeOf(filePath)
-        var numH = Math.floor(dims.height / chopH)
-        var lastH = dims.height % (chopH)
+        var numH = Math.floor(dims.height / dims.width)
+        var lastH = dims.height % (dims.width)
 
         console.log(dims)
         console.log(numH)
@@ -53,7 +52,7 @@ module.exports = function(filePath, eachCb, doneCb) {
 
                     // var top = (dims.height / 2) - (dims.width * index)
                     var top = dims.width * index
-                    var bottom = (index === numH) ? (top + lastH) : (top + chopH + 70)
+                    var bottom = (index === numH) ? (top + lastH) : (top + dims.width + 70)
 
                     clonedImage.crop(
                         0,
