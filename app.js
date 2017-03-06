@@ -61,7 +61,7 @@ app.get('/', validateToken, function(req, res) {
         }
 
         processLinks(links, 0, sender_id, function() {
-            sendText(sender_id, `End of search results for "${q}"`)
+            sendText(sender_id, `End of search results for "${q}". Please like and share Adoogle page`)
         })
 
     })
