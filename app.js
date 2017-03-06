@@ -22,11 +22,11 @@ if (env === 'development') {
 
 let webshotOptions = {
     screenSize: {
-        width: 1024,
+        width: 800,
         height: 768
     },
     shotSize: {
-        width: 1024,
+        width: 800,
         height: 'all'
     },
     streamType: 'jpg'
@@ -97,7 +97,7 @@ function processLinks(links, index, sender_id, max, successCount, doneCallback) 
 
     function next() {
         console.log(`successCount: ${successCount}`)
-        if (successCount >= max) {
+        if (successCount >= max || index >= links.length) {
             doneCallback()
         } else {
             processLinks(links, index + 1, sender_id, max, successCount, doneCallback)
