@@ -52,15 +52,16 @@ app.get('/', validateToken, function(req, res) {
 
     engine.search({
         q,
-        max: max
+        max: 10
     }, (err, links) => {
 
         console.log(links)
         if (err) {
+            console.log(err.toString())
             return sendText(sender_id, `No search results can be foud for "${q}"`)
         }
 
-        processLinks(links, 0, sender_id, function() {
+        processLinks(links, 0, sender_id, max, function() {
             sendText(sender_id, `End of search results for "${q}". Please like and share Adoogle page`)
         })
 
@@ -70,22 +71,28 @@ app.get('/', validateToken, function(req, res) {
 
 })
 
-function processLinks(links, index, sender_id, doneCallback) {
+function processLinks(links, index, sender_id, max, doneCallback) {
     let link = links[index]
 
-    getWebsiteImage(link, sender_id, function(filename) {
+    function next() {
+        if (index === max - 1) {
+            doneCallback()
+        } else {
+            processLinks(links, index + 1, sender_id, max, doneCallback)
+        }
+    }
+
+    getWebsiteImage(link, sender_id, function(err, filename) {
+
         console.log(filename)
 
+        if (err) {
+            console.log(err.toString())
+            next()
+            return
+        }
 
-        processImage(filename, sender_id, function() {
-
-            if (index === links.length - 1) {
-                doneCallback()
-            } else {
-                processLinks(links, index + 1, sender_id, doneCallback)
-            }
-
-        })
+        processImage(filename, sender_id, next)
 
     })
 }
@@ -95,14 +102,10 @@ function getWebsiteImage(link, sender_id, callback) {
 
     console.log(`Capturing ${link}`)
     webshot(link, resultFile, webshotOptions, function(err) {
-        if (err) {
-            console.log(err)
-            return
-        }
 
-        console.log(`Image saved to ${resultFile}`)
+        if (!err) console.log(`Image saved to ${resultFile}`)
 
-        callback(resultFile)
+        callback(err, resultFile)
     })
 }
 
