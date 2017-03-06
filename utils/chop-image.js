@@ -42,7 +42,7 @@ module.exports = function(filePath, eachCb, doneCb) {
 
             function chop(index) {
 
-                var newFilePath = path.dirname(filePath) + '/' + path.basename(filePath, '.png') + '-chunk-' + (new Date()).getTime() + '.png'
+                var newFilePath = path.dirname(filePath) + '/' + path.basename(filePath, '.jpg') + '-chunk-' + (new Date()).getTime() + '.jpg'
                 image.clone(function(err, clonedImage) {
 
                     if (err || !clonedImage) {

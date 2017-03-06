@@ -28,7 +28,8 @@ let webshotOptions = {
     shotSize: {
         width: 1024,
         height: 'all'
-    }
+    },
+    streamType: 'jpg'
 }
 
 const app = express()
@@ -102,7 +103,7 @@ function processLinks(links, index, sender_id, max, successCount, doneCallback) 
 }
 
 function getWebsiteImage(link, sender_id, callback) {
-    var resultFile = `./public/${sender_id}-${(new Date()).getTime()}.png`
+    var resultFile = `./public/${sender_id}-${(new Date()).getTime()}.jpg`
 
     console.log(`Capturing ${link}`)
     webshot(link, resultFile, webshotOptions, function(err) {
