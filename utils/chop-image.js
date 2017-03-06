@@ -52,7 +52,7 @@ module.exports = function(filePath, eachCb, doneCb) {
 
                     // var top = (dims.height / 2) - (dims.width * index)
                     var top = dims.width * index
-                    var bottom = top + dims.width + 70
+                    var bottom = (index === numH) ? (top + lastH) : (top + dims.width + 70)
 
                     clonedImage.crop(
                         0,
