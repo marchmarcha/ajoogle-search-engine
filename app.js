@@ -57,7 +57,6 @@ app.get('/', validateToken, function(req, res) {
         kl: 'ph-en'
     }, (err, links) => {
 
-
         console.log(links)
         if (err) {
             console.log(err.toString())
