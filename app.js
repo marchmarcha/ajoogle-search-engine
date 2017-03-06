@@ -16,9 +16,9 @@ const TOKEN = process.env.TOKEN || config.get('token')
 let engine = require('./engines/ddg')
 
 // mock some services on local
-if (env === 'development') {
-    engine = require('./mocks/engine')
-}
+// if (env === 'development') {
+//     engine = require('./mocks/engine')
+// }
 
 let webshotOptions = {
     screenSize: {
@@ -53,7 +53,8 @@ app.get('/', validateToken, function(req, res) {
 
     engine.search({
         q,
-        max: 10
+        max: 10,
+        kl: 'ph-en'
     }, (err, links) => {
 
 
