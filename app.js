@@ -48,7 +48,7 @@ app.get('/', validateToken, function(req, res) {
 
     let sender_id = req.query.sender_id
     let q = req.query.query
-    let max = req.query.max
+    let max = req.query.max * 1
 
     engine.search({
         q,
@@ -61,7 +61,7 @@ app.get('/', validateToken, function(req, res) {
             return sendText(sender_id, `No search results can be foud for "${q}"`)
         }
 
-        processLinks(links, 0, sender_id, max, function() {
+        processLinks(links, 0, sender_id, max, 0, function() {
             sendText(sender_id, `End of search results for "${q}". Please like and share Adoogle page`)
         })
 
@@ -71,16 +71,8 @@ app.get('/', validateToken, function(req, res) {
 
 })
 
-function processLinks(links, index, sender_id, max, doneCallback) {
+function processLinks(links, index, sender_id, max, successCount, doneCallback) {
     let link = links[index]
-
-    function next() {
-        if (index === max - 1) {
-            doneCallback()
-        } else {
-            processLinks(links, index + 1, sender_id, max, doneCallback)
-        }
-    }
 
     getWebsiteImage(link, sender_id, function(err, filename) {
 
@@ -92,9 +84,21 @@ function processLinks(links, index, sender_id, max, doneCallback) {
             return
         }
 
+        successCount += 1
+
+
         processImage(filename, sender_id, next)
 
     })
+
+    function next() {
+        console.log(`successCount: ${successCount}`)
+        if (successCount === max) {
+            doneCallback()
+        } else {
+            processLinks(links, index + 1, sender_id, max, successCount, doneCallback)
+        }
+    }
 }
 
 function getWebsiteImage(link, sender_id, callback) {
