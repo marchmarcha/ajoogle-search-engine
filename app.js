@@ -97,7 +97,7 @@ function processLinks(links, index, sender_id, max, successCount, doneCallback) 
 
     function next() {
         console.log(`successCount: ${successCount}`)
-        if (successCount === max) {
+        if (successCount >= max) {
             doneCallback()
         } else {
             processLinks(links, index + 1, sender_id, max, successCount, doneCallback)
