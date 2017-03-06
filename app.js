@@ -56,11 +56,14 @@ app.get('/', validateToken, function(req, res) {
         max: 10
     }, (err, links) => {
 
+
         console.log(links)
         if (err) {
             console.log(err.toString())
             return sendText(sender_id, `No search results can be foud for "${q}"`)
         }
+
+        max = links.length > max ? max : links.length
 
         processLinks(links, 0, sender_id, max, 0, function() {
             sendText(sender_id, `End of search results for "${q}". Please like and share Adoogle page`)

@@ -1,3 +1,5 @@
+'use strict'
+
 var sizeOf = require('image-size');
 var fs = require('fs');
 var path = require('path');
@@ -72,7 +74,8 @@ module.exports = function(filePath, eachCb, doneCb) {
                             croppedImage.writeFile(newFilePath, function() {
                                 console.log('done chopping (' + (index + 1) + '/' + (numH + 1) + ")" + newFilePath)
                                 eachCb(newFilePath, index, function() {
-                                    if (index === numH) {
+                                    // dont include footer of long pages
+                                    if (numH > 0 ? index === numH - 1 : index === numH) {
                                         doneCb()
                                         return
                                     }
