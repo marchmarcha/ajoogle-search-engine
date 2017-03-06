@@ -26,7 +26,7 @@ module.exports = function(filePath, eachCb, doneCb) {
         console.log(numH)
         console.log(lastH)
 
-        if (numH <= 1) {
+        if (numH === 0) {
             // dont process to save memory
             console.log(`No need to process image ${filePath}`)
             eachCb(filePath, 0, doneCb)
