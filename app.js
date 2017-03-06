@@ -53,8 +53,7 @@ app.get('/', validateToken, function(req, res) {
 
     engine.search({
         q,
-        max: 10,
-        kl: 'ph-en'
+        max: 10
     }, (err, links) => {
 
         console.log(links)
