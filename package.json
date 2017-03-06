@@ -16,7 +16,7 @@
   "homepage": "https://bitbucket.org/adonesp/ajoogle-search-engine#readme",
   "dependencies": {
     "config": "^1.25.1",
-    "ddg-scraper": "git+ssh://git@github.com/adonespitogo/ddg-scraper.git",
+    "ddg-scraper": "git+https://git@github.com/adonespitogo/ddg-scraper.git",
     "del": "^2.2.2",
     "express": "^4.15.0",
     "image-size": "^0.5.1",
