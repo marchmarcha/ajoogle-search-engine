@@ -123,6 +123,12 @@ function processImage(filePath, sender_id, callback) {
     }, function done() {
         setTimeout(function() {
             callback()
+            console.log(`Deleting file ${filePath}`)
+            if (env === 'production') {
+                del([`./public/${sender_id}*`]).then(paths => {
+                    console.log('Deleted file:\n', paths.join('\n'));
+                })
+            }
         }, 4000)
     })
 
@@ -166,9 +172,9 @@ function sendText(sender_id, text, callback) {
 
 app.get('/postback', validateToken, function(req, res) {
     console.log(`Postback: ${JSON.stringify(req.query)}`)
-    del([`./public/${req.query.filename}`]).then(paths => {
-        console.log('Deleted file:\n', paths.join('\n'));
-    })
+        // del([`./public/${req.query.filename}`]).then(paths => {
+        //     console.log('Deleted file:\n', paths.join('\n'));
+        // })
     res.send()
 })
 
