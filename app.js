@@ -65,7 +65,9 @@ app.get('/', validateToken, function(req, res) {
         max = links.length > max ? max : links.length
 
         processLinks(links, 0, sender_id, max, 0, function() {
-            sendText(sender_id, `End of search results for "${q}"`)
+            setTimeout(() => {
+                sendText(sender_id, `End of search results for "${q}"`)
+            }, 2500)
         })
 
     })
