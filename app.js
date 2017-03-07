@@ -132,40 +132,63 @@ function start() {
 
     function processImage(filePath, sender_id, callback) {
 
+        let image_urls = []
+
         chopImage(filePath, function each(choppedFile, index, next) {
 
             let base_url = (env === 'development') ? `${SERVER}:${PORT}` : SERVER
             let image_url = `${base_url}/${path.basename(choppedFile)}`
-            let postback_url = `${base_url}/postback?sender_id=sender_id&filename=${path.basename(choppedFile)}&token=${TOKEN}`
+                // let postback_url = `${base_url}/postback?sender_id=sender_id&filename=${path.basename(choppedFile)}&token=${TOKEN}`
 
-            sendImage(sender_id, image_url, postback_url, function() {
+            image_urls.push(image_url)
+
+            next()
+
+            // sendImage(sender_id, image_url, postback_url, function() {
+            //     next()
+            // })
+
+        }, function done() {
+
+
+            sendBatchImage(sender_id, image_urls, 0, function() {
                 setTimeout(function() {
-                    next()
+                    callback()
+                    console.log(`Deleting files ./public/${filePath}*`)
+                    if (env === 'production') {
+                        del([`./public/${sender_id}*`]).then(paths => {
+                            console.log('Deleted file:\n', paths.join('\n'));
+                        })
+                    }
                 }, 1500)
             })
 
-        }, function done() {
-            setTimeout(function() {
-                callback()
-                console.log(`Deleting file ${filePath}`)
-                if (env === 'production') {
-                    del([`./public/${sender_id}*`]).then(paths => {
-                        console.log('Deleted file:\n', paths.join('\n'));
-                    })
-                }
-            }, 1500)
+
         })
 
     }
 
-    function sendImage(sender_id, image_url, postback_url, callback) {
+    function sendBatchImage(sender_id, image_urls, index, callback) {
+
+        sendImage(sender_id, image_urls[index], function() {
+            if (index < image_urls.length - 1) {
+                setTimeout(function() {
+                    sendBatchImage(sender_id, image_urls, index + 1, callback)
+                }, 1500)
+            } else {
+                if (callback) callback()
+            }
+        })
+
+    }
+
+    function sendImage(sender_id, image_url, callback) {
         request({
             baseUrl: MAIN,
             uri: '/send-image',
             qs: {
                 sender_id,
-                image_url,
-                postback_url
+                image_url
             }
         }, function(err) {
             if (err)
@@ -194,17 +217,16 @@ function start() {
         })
     }
 
-    app.get('/postback', validateToken, function(req, res) {
-        console.log(`Postback: ${JSON.stringify(req.query)}`)
-            // del([`./public/${req.query.filename}`]).then(paths => {
-            //     console.log('Deleted file:\n', paths.join('\n'));
-            // })
-        res.send()
-    })
+    // app.get('/postback', validateToken, function(req, res) {
+    //     console.log(`Postback: ${JSON.stringify(req.query)}`)
+    //         // del([`./public/${req.query.filename}`]).then(paths => {
+    //         //     console.log('Deleted file:\n', paths.join('\n'));
+    //         // })
+    //     res.send()
+    // })
 
     app.listen(PORT, () => {
         console.log('Node app is running on port', PORT)
     })
 
 }
-
