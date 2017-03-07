@@ -73,7 +73,7 @@ function processUrl(url, filePrefix, doneCb) {
 
                             var fileName = `./public/${filePrefix}-${(new Date()).getTime()}.${format}`
                             var top = index * shotSize.height
-                            var bottom = top + shotSize.height + 20
+                            var bottom = shotSize.height + 20
 
                             page.property('clipRect', {
                                     top: top,
