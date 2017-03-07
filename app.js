@@ -4,6 +4,9 @@
 // https://devcenter.heroku.com/articles/node-concurrency
 const throng = require('throng')
 const WORKERS = process.env.WEB_CONCURRENCY || 1;
+const config = require('config')
+const maxClient = process.env.MAX_CLIENT || config.get('maxClient')
+var clientCount = 0
 
 throng({
     start: start,
@@ -17,7 +20,6 @@ function start() {
     const express = require('express')
     const request = require('request')
     const webshot = require('webshot')
-    const config = require('config')
     const path = require('path')
     const del = require('del')
     const chopImage = require('./utils/chop-image')
@@ -29,9 +31,9 @@ function start() {
     let engine = require('./engines/ddg')
 
     // mock some services on local
-    // if (env === 'development') {
-    //     engine = require('./mocks/engine')
-    // }
+    if (env === 'development') {
+        engine = require('./mocks/engine')
+    }
 
     let webshotOptions = {
         screenSize: {
@@ -58,6 +60,14 @@ function start() {
 
     app.get('/', validateToken, function(req, res) {
 
+        if (clientCount >= maxClient) {
+            var e = `\n\nMax client limit (${maxClient}) reached!!!\n\n`
+            console.log(e)
+            res.status(422).json({ message: e })
+            return
+        }
+        clientCount++
+
         console.log(`Received request: ${JSON.stringify(req.query)}`)
 
         let sender_id = req.query.sender_id
@@ -72,12 +82,14 @@ function start() {
             console.log(links)
             if (err) {
                 console.log(err.toString())
+                clientCount = clientCount - 1
                 return sendText(sender_id, `No search results can be foud for "${q}"`)
             }
 
             max = links.length > max ? max : links.length
 
             processLinks(links, 0, sender_id, max, 0, function() {
+                clientCount = clientCount - 1
                 setTimeout(() => {
                     sendText(sender_id, `End of search results for "${q}"`)
                 }, 2500)
