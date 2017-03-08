@@ -7,9 +7,10 @@ module.exports = function (q) {
     'picture',
     'pics',
     'wallpaper',
+    'background',
   ]
 
-  let imgReg = new RegExp(`.*${image_keywords.join('.*|.*')}.*`)
+  let imgReg = new RegExp(`(.*)?${image_keywords.join('.*|.*')}(.*)?`)
 
   return imgReg.test(q)
 
