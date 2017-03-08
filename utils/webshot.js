@@ -40,90 +40,106 @@ function processUrl(url, filePrefix, doneCb) {
 
     preparePhantom(function(phInstance, page) {
 
-        page.property('viewportSize', viewportSize).then(() => {
+        function grabScreen(dimension) {
 
-            console.log(`Openning URL: ${url}`)
-            page.open(url).then(function() {
-                console.log(`Done loading page: ${url}`)
+            var dims = JSON.parse(dimension)
+            var numH = Math.floor(dims.height / shotSize.height)
 
-                page.evaluate(function() {
-                        // set default background to white
-                        var style = document.createElement('style');
-                        var text = document.createTextNode('body { background: #fff }');
-                        style.setAttribute('type', 'text/css');
-                        style.appendChild(text);
-                        document.head.insertBefore(style, document.head.firstChild);
+            shot(0)
 
-                        return JSON.stringify({
-                            width: Math.max(
-                                document.body.offsetWidth,
-                                document.body.scrollWidth,
-                                document.documentElement.clientWidth,
-                                document.documentElement.scrollWidth,
-                                document.documentElement.offsetWidth
-                            ),
-                            height: Math.max(
-                                document.body.offsetHeight,
-                                document.body.scrollHeight,
-                                document.documentElement.clientHeight,
-                                document.documentElement.scrollHeight,
-                                document.documentElement.offsetHeight
-                            )
-                        })
+            function shot(index) {
+
+                var fileName = `${filePrefix}-${(new Date()).getTime()}.${format}`
+                fileName = path.join(__dirname, '../public', fileName)
+                var top = index * shotSize.height
+                var bottom = index === numH ? dims.height % shotSize.height : shotSize.height + 20
+
+                page.property('clipRect', {
+                        top: top,
+                        left: 0,
+                        width: shotSize.width,
+                        height: bottom
                     })
-                    .then((dimension) => {
+                    .then(() => {
+                        page.render(fileName)
+                            .then(function() {
+                                console.log(`File saved ${fileName}`)
+                                resultFiles.push(fileName)
+                                if (numH > 0 ? index === numH - 1 : index === numH) {
+                                    doneCb(null, resultFiles)
+                                    phInstance.exit()
+                                    return
+                                }
+                                shot(index + 1)
+                            })
+                            .catch(function() {
+                                if (numH > 0 ? index === numH - 1 : index === numH) {
+                                    doneCb(null, resultFiles)
+                                    phInstance.exit()
+                                    return
+                                }
+                                shot(index + 1)
+                            })
+                    })
+            }
 
-                        page.setting('javascriptEnabled', false).then(() => {
+        }
 
-                            var dims = JSON.parse(dimension)
-                            var numH = Math.floor(dims.height / shotSize.height)
 
-                            shot(0)
+        console.log(`Openning URL: ${url}`)
+        page.open(url).then(function() {
+            console.log(`Done loading page: ${url}`)
 
-                            function shot(index) {
+            page.property('viewportSize', viewportSize)
+                .then(() => {
 
-                                var fileName = `${filePrefix}-${(new Date()).getTime()}.${format}`
-                                fileName = path.join(__dirname, '../public', fileName)
-                                var top = index * shotSize.height
-                                var bottom = index === numH ? dims.height % shotSize.height : shotSize.height + 20
+                    page.evaluate(function() {
+                            // set default background to white
+                            var style = document.createElement('style');
+                            var text = document.createTextNode('body { background: #fff }');
+                            style.setAttribute('type', 'text/css');
+                            style.appendChild(text);
+                            document.head.insertBefore(style, document.head.firstChild);
 
-                                page.property('clipRect', {
-                                        top: top,
-                                        left: 0,
-                                        width: shotSize.width,
-                                        height: bottom
-                                    })
-                                    .then(() => {
-                                        page.render(fileName)
-                                            .then(function() {
-                                                console.log(`File saved ${fileName}`)
-                                                console.log(`File exists: ${fileName}: ${require('fs').existsSync(fileName)}`)
-                                                resultFiles.push(fileName)
-                                                if (numH > 0 ? index === numH - 1 : index === numH) {
-                                                    doneCb(null, resultFiles)
-                                                    phInstance.exit()
-                                                    return
-                                                }
-                                                shot(index + 1)
-                                            })
-                                            .catch(function() {
-                                                if (numH > 0 ? index === numH - 1 : index === numH) {
-                                                    doneCb(null, resultFiles)
-                                                    phInstance.exit()
-                                                    return
-                                                }
-                                                shot(index + 1)
-                                            })
-                                    })
-                            }
+                            return JSON.stringify({
+                                width: Math.max(
+                                    document.body.offsetWidth,
+                                    document.body.scrollWidth,
+                                    document.documentElement.clientWidth,
+                                    document.documentElement.scrollWidth,
+                                    document.documentElement.offsetWidth
+                                ),
+                                height: Math.max(
+                                    document.body.offsetHeight,
+                                    document.body.scrollHeight,
+                                    document.documentElement.clientHeight,
+                                    document.documentElement.scrollHeight,
+                                    document.documentElement.offsetHeight
+                                )
+                            })
+                        })
+                        .then((dimension) => {
 
+                            page.setting('javascriptEnabled', false)
+                                .then(function() {
+                                    grabScreen(dimension)
+                                })
+                                .catch(function() {
+                                    grabScreen(dimension)
+                                })
+
+
+                        })
+                        .catch(function() {
+                            grabScreen(shotSize)
                         })
 
 
+                })
+                .catch(function() {
+                    grabScreen(shotSize)
+                })
 
-                    })
-
-            })
         })
 
     }, function(err, phInstance, page) {
