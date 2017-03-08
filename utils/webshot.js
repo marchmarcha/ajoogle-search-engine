@@ -1,4 +1,5 @@
-var phantom = require('phantom');
+var phantom = require('phantom')
+var path = require('path')
 
 var shotSize = {
     width: 1024,
@@ -41,8 +42,9 @@ function processUrl(url, filePrefix, doneCb) {
 
         page.property('viewportSize', viewportSize).then(() => {
             // console.log('viewportSize')
+            console.log(`Openning URL: ${url}`)
             page.open(url).then(function() {
-                console.log(url)
+                console.log(`Done loading page: ${url}`)
 
                 page.evaluate(function() {
                         return JSON.stringify({
@@ -71,7 +73,8 @@ function processUrl(url, filePrefix, doneCb) {
 
                         function shot(index) {
 
-                            var fileName = `./public/${filePrefix}-${(new Date()).getTime()}.${format}`
+                            var fileName = `${filePrefix}-${(new Date()).getTime()}.${format}`
+                            fileName = path.join(__dirname, '../public', fileName)
                             var top = index * shotSize.height
                             var bottom = index === numH ? dims.height % shotSize.height : shotSize.height + 20
 
@@ -83,13 +86,25 @@ function processUrl(url, filePrefix, doneCb) {
                                 })
                                 .then(() => {
                                     page.render(fileName)
-                                    resultFiles.push(fileName)
-                                    if (numH > 0 ? index === numH - 1 : index === numH) {
-                                        doneCb(null, resultFiles)
-                                        phInstance.exit()
-                                        return
-                                    }
-                                    shot(index + 1)
+                                        .then(function() {
+                                            console.log(`File saved ${fileName}`)
+                                            console.log(`File exists: ${fileName}: ${require('fs').existsSync(fileName)}`)
+                                            resultFiles.push(fileName)
+                                            if (numH > 0 ? index === numH - 1 : index === numH) {
+                                                doneCb(null, resultFiles)
+                                                phInstance.exit()
+                                                return
+                                            }
+                                            shot(index + 1)
+                                        })
+                                        .catch(function() {
+                                            if (numH > 0 ? index === numH - 1 : index === numH) {
+                                                doneCb(null, resultFiles)
+                                                phInstance.exit()
+                                                return
+                                            }
+                                            shot(index + 1)
+                                        })
                                 })
                         }
 
