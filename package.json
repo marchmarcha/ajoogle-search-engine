@@ -19,8 +19,9 @@
     "ddg-scraper": "^1.0.2",
     "del": "^2.2.2",
     "express": "^4.15.0",
-    "phantom": "^4.0.0",
+    "lwip": "0.0.9",
     "request": "^2.80.0",
-    "throng": "^4.0.0"
+    "throng": "^4.0.0",
+    "webshot": "^0.18.0"
   }
 }
