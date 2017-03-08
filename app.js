@@ -78,11 +78,11 @@ function start() {
 
                     console.log(`Deleting files ./public/${sender_id}*`)
 
-                    // if (env === 'production') {
-                    //     del([`./public/${sender_id}*`]).then(paths => {
-                    //         console.log('Deleted file:\n', paths.join('\n'));
-                    //     })
-                    // }
+                    if (env === 'production') {
+                        del([`./public/${sender_id}*`]).then(paths => {
+                            console.log('Deleted file:\n', paths.join('\n'));
+                        })
+                    }
 
                 }, 2500)
             })
