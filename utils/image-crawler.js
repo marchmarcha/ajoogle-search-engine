@@ -25,11 +25,16 @@ function preparePhantom(done, errCb) {
 }
 
 
-function processUrl(url, filePrefix, doneCb) {
+function processUrl(url, filePrefix, callback) {
 
     var image_urls = []
 
     preparePhantom(function(phInstance, page) {
+
+        function doneCb(err) {
+            phInstance.exit()
+            callback(err)
+        }
 
         console.log(`Openning URL: ${url}`)
         page.open(url).then(function() {
@@ -54,6 +59,7 @@ function processUrl(url, filePrefix, doneCb) {
                         })
                         .then((image_urls) => {
                             doneCb(null, image_urls)
+                            phInstance.exit()
                         })
                         .catch(doneCb)
                 }, delay)
