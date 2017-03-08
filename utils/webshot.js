@@ -12,7 +12,7 @@ var viewportSize = {
     height: 768
 }
 
-var format = 'png'
+var format = 'jpg'
 
 function preparePhantom(done, errCb) {
 
