@@ -73,8 +73,38 @@ function processUrl(url, filePrefix, doneCb) {
                                 console.log(`File saved ${fileName}`)
                                 image_urls.push(`${SERVER_URL}/${path.basename(fileName)}`)
                                 if (numH > 0 ? index === numH - 1 : index === numH) {
-                                    doneCb(null, image_urls)
-                                    phInstance.exit()
+
+                                    // retrive image urls as well
+
+                                    setTimeout(function() {
+
+                                        page.evaluate(function() {
+                                                var list,
+                                                    max = 10,
+                                                    images = [],
+                                                    index;
+
+                                                list = document.getElementsByTagName("img");
+                                                for (index = 0; index < list.length && images.length < max; ++index) {
+                                                    var img = list[index]
+                                                    var src = img.getAttribute('src')
+                                                    if (src && src.indexOf('http') > -1)
+                                                        images.push(src)
+                                                }
+
+                                                return images
+                                            })
+                                            .then((urls) => {
+                                                image_urls = image_urls.concat(urls)
+                                                doneCb(null, image_urls)
+                                                phInstance.exit()
+                                            })
+                                            .catch(function() {
+                                              doneCb(null, image_urls)
+                                            })
+                                    }, delay)
+
+
                                     return
                                 }
                                 shot(index + 1)

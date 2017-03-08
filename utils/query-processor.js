@@ -1,8 +1,8 @@
 'use strict'
 
-const IS_IMAGE_QUERY = require('./is-image-query')
-const blocked = require('./blocked')
 const env = process.env.NODE_ENV || 'development'
+const blocked = require('./blocked')
+const webshot = require('./webshot')
 
 class QueryProcessor {
 
@@ -52,27 +52,14 @@ class QueryProcessor {
             })
 
             this.max = this.links.length > this.max ? this.max : this.links.length
-            this.processResults()
+
+            this.generateImageUrls()
         })
-    }
-
-    processResults() {
-
-        if (IS_IMAGE_QUERY(this.query)) {
-            this.processor = require('./image-crawler')
-            console.log('\nUsing image crawler\n')
-        } else {
-            this.processor = require('./webshot')
-            console.log('\nUsing webshot\n')
-        }
-
-        this.generateImageUrls()
-
     }
 
     generateImageUrls() {
         let link = this.links[this.linkProcessIndex]
-        this.processor(link, this.sender_id, (err, image_urls) => {
+        webshot(link, this.sender_id, (err, image_urls) => {
             if (err) {
                 next()
             } else {
