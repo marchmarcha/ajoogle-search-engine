@@ -141,6 +141,9 @@ function processUrl(url, filePrefix, doneCb) {
                 })
 
         })
+        .catch(function(err) {
+            doneCb(err)
+        })
 
     }, function(err, phInstance, page) {
         phInstance.exit()
