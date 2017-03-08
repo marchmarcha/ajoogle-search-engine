@@ -103,6 +103,7 @@ function processUrl(url, filePrefix, doneCb) {
 
 
     }, function(err, phInstance, page) {
+        callback(err)
         phInstance.exit()
         doneCb(err)
 
