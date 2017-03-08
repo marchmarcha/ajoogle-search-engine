@@ -44,7 +44,7 @@ function processUrl(url, filePrefix, callback) {
 
                     page.evaluate(function() {
                             var list,
-                                max = 5,
+                                max = 10,
                                 images = [],
                                 index;
 
