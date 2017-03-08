@@ -1,19 +1,26 @@
-var phantom = require('phantom')
-var path = require('path')
+const config = require('config')
+const ENV = process.env.NODE_ENV || 'development'
+const SERVER = process.env.SERVER || config.get('server')
+const PORT = process.env.PORT || config.get('port')
+const SERVER_URL = (ENV === 'development') ? `${SERVER}:${PORT}` : SERVER
+const phantom = require('phantom')
+const path = require('path')
 
-var shotSize = {
+const shotSize = {
     width: 1024,
     height: 768 * 2.5
 }
 
-var viewportSize = {
+const viewportSize = {
     top: 0,
     left: 0,
     width: 1024,
     height: 768
 }
 
-var format = 'jpg'
+const format = 'jpg'
+const javascriptEnabled = false
+const delay = 2000
 
 function preparePhantom(done, errCb) {
 
@@ -36,7 +43,7 @@ function preparePhantom(done, errCb) {
 
 function processUrl(url, filePrefix, doneCb) {
 
-    var resultFiles = []
+    var image_urls = []
 
     preparePhantom(function(phInstance, page) {
 
@@ -64,9 +71,9 @@ function processUrl(url, filePrefix, doneCb) {
                         page.render(fileName)
                             .then(function() {
                                 console.log(`File saved ${fileName}`)
-                                resultFiles.push(fileName)
+                                image_urls.push(`${SERVER_URL}/${path.basename(fileName)}`)
                                 if (numH > 0 ? index === numH - 1 : index === numH) {
-                                    doneCb(null, resultFiles)
+                                    doneCb(null, image_urls)
                                     phInstance.exit()
                                     return
                                 }
@@ -74,7 +81,7 @@ function processUrl(url, filePrefix, doneCb) {
                             })
                             .catch(function() {
                                 if (numH > 0 ? index === numH - 1 : index === numH) {
-                                    doneCb(null, resultFiles)
+                                    doneCb(null, image_urls)
                                     phInstance.exit()
                                     return
                                 }
@@ -88,44 +95,52 @@ function processUrl(url, filePrefix, doneCb) {
 
         console.log(`Openning URL: ${url}`)
         page.open(url).then(function() {
-            console.log(`Done loading page: ${url}`)
+                console.log(`Done loading page: ${url}`)
 
-            page.property('viewportSize', viewportSize)
-                .then(() => {
+                setTimeout(function() {
 
-                    page.evaluate(function() {
-                            // set default background to white
-                            var style = document.createElement('style');
-                            var text = document.createTextNode('body { background: #fff }');
-                            style.setAttribute('type', 'text/css');
-                            style.appendChild(text);
-                            document.head.insertBefore(style, document.head.firstChild);
+                    page.property('viewportSize', viewportSize)
+                        .then(() => {
 
-                            return JSON.stringify({
-                                width: Math.max(
-                                    document.body.offsetWidth,
-                                    document.body.scrollWidth,
-                                    document.documentElement.clientWidth,
-                                    document.documentElement.scrollWidth,
-                                    document.documentElement.offsetWidth
-                                ),
-                                height: Math.max(
-                                    document.body.offsetHeight,
-                                    document.body.scrollHeight,
-                                    document.documentElement.clientHeight,
-                                    document.documentElement.scrollHeight,
-                                    document.documentElement.offsetHeight
-                                )
-                            })
-                        })
-                        .then((dimension) => {
+                            page.evaluate(function() {
+                                    // set default background to white
+                                    var style = document.createElement('style');
+                                    var text = document.createTextNode('body { background: #fff }');
+                                    style.setAttribute('type', 'text/css');
+                                    style.appendChild(text);
+                                    document.head.insertBefore(style, document.head.firstChild);
 
-                            page.setting('javascriptEnabled', false)
-                                .then(function() {
-                                    grabScreen(dimension)
+                                    return JSON.stringify({
+                                        width: Math.max(
+                                            document.body.offsetWidth,
+                                            document.body.scrollWidth,
+                                            document.documentElement.clientWidth,
+                                            document.documentElement.scrollWidth,
+                                            document.documentElement.offsetWidth
+                                        ),
+                                        height: Math.max(
+                                            document.body.offsetHeight,
+                                            document.body.scrollHeight,
+                                            document.documentElement.clientHeight,
+                                            document.documentElement.scrollHeight,
+                                            document.documentElement.offsetHeight
+                                        )
+                                    })
+                                })
+                                .then((dimension) => {
+
+                                    page.setting('javascriptEnabled', javascriptEnabled)
+                                        .then(function() {
+                                            grabScreen(dimension)
+                                        })
+                                        .catch(function() {
+                                            grabScreen(dimension)
+                                        })
+
+
                                 })
                                 .catch(function() {
-                                    grabScreen(dimension)
+                                    grabScreen(shotSize)
                                 })
 
 
@@ -133,17 +148,12 @@ function processUrl(url, filePrefix, doneCb) {
                         .catch(function() {
                             grabScreen(shotSize)
                         })
+                }, delay)
 
-
-                })
-                .catch(function() {
-                    grabScreen(shotSize)
-                })
-
-        })
-        .catch(function(err) {
-            doneCb(err)
-        })
+            })
+            .catch(function(err) {
+                doneCb(err)
+            })
 
     }, function(err, phInstance, page) {
         phInstance.exit()
