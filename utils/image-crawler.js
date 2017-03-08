@@ -31,9 +31,9 @@ function processUrl(url, filePrefix, callback) {
 
     preparePhantom(function(phInstance, page) {
 
-        function doneCb(err) {
+        function doneCb(err, image_urls) {
+            callback(err, image_urls)
             phInstance.exit()
-            callback(err)
         }
 
         console.log(`Openning URL: ${url}`)
