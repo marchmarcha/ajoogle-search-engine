@@ -60,8 +60,10 @@ class QueryProcessor {
 
         if (IS_IMAGE_QUERY(this.query)) {
             this.processor = require('./image-crawler')
+            console.log('\nUsing image crawler\n')
         } else {
             this.processor = require('./webshot')
+            console.log('\nUsing webshot\n')
         }
 
         this.generateImageUrls()
