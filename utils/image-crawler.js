@@ -47,8 +47,9 @@ function processUrl(url, filePrefix, callback) {
                                 max = 5,
                                 images = [],
                                 index;
+
                             list = document.getElementsByTagName("img");
-                            for (index = 0; index < list.length && index < max; ++index) {
+                            for (index = 0; index < list.length && images.length < max; ++index) {
                                 var img = list[index]
                                 var src = img.getAttribute('src')
                                 if (src && src.indexOf('http') > -1)
@@ -69,8 +70,7 @@ function processUrl(url, filePrefix, callback) {
 
     }, function(err, phInstance, page) {
         phInstance.exit()
-        doneCb(err)
-
+        callback(err)
     })
 
 }
