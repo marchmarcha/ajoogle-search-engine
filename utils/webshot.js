@@ -47,6 +47,13 @@ function processUrl(url, filePrefix, doneCb) {
                 console.log(`Done loading page: ${url}`)
 
                 page.evaluate(function() {
+                        // set default background to white
+                        var style = document.createElement('style');
+                        var text = document.createTextNode('body { background: #fff }');
+                        style.setAttribute('type', 'text/css');
+                        style.appendChild(text);
+                        document.head.insertBefore(style, document.head.firstChild);
+
                         return JSON.stringify({
                             width: Math.max(
                                 document.body.offsetWidth,
