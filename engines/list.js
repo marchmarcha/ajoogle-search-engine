@@ -15,4 +15,6 @@ module.exports = [
   'https://unauthorised-sugar.000webhostapp.com',
   'http://ajoogle-se-02.16mb.com',
   'http://ajoogle-se001.unsakini.com',
+  'http://ajoogle-se001.890m.com',
+  'http://ajoogle-se002.esy.es',
 ]
