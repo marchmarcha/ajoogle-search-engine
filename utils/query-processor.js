@@ -59,7 +59,8 @@ class QueryProcessor {
 
     generateImageUrls() {
         let link = this.links[this.linkProcessIndex]
-        webshot(link, this.sender_id, (err, image_urls) => {
+        console.log(`includeImages: ${this.includeImages()}`)
+        webshot(link, this.sender_id, this.includeImages(), (err, image_urls) => {
             if (err) {
                 next()
             } else {
@@ -85,6 +86,21 @@ class QueryProcessor {
             this.linkProcessIndex += 1
             this.generateImageUrls()
         }
+    }
+
+    includeImages () {
+      let image_keywords = [
+        'photo',
+        'image',
+        'picture',
+        'pics',
+        'background',
+        'wallpaper',
+      ]
+
+      let imgReg = new RegExp(`.*${image_keywords.join('*.|.*')}.*`)
+
+      return imgReg.test(this.query)
     }
 
 }
