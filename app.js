@@ -51,22 +51,15 @@ function start() {
         let sender_id = req.query.sender_id
         let q = req.query.query
         let max = req.query.max * 1
+        let query_id = req.query.query_id
 
-        let queryProcessor = new QueryProcessor(engine, sender_id, q, max)
-            .eachLink(function(image_urls, next) {
-                console.log(image_urls)
-                if (image_urls.length > 0)
-                    sendBatchImage(sender_id, image_urls, 0, next)
-                else
-                    next()
-            })
+        let queryProcessor = new QueryProcessor(engine, sender_id, q, query_id, max)
+
             .done(function() {
 
                 clientCount = clientCount - 1
 
                 setTimeout(() => {
-
-                    sendText(sender_id, `End of search results for "${q}"`)
 
                     console.log(`Deleting files ./public/${sender_id}*`)
 
@@ -82,55 +75,6 @@ function start() {
         res.send()
 
     })
-
-    function sendBatchImage(sender_id, image_urls, index, callback) {
-
-        sendImage(sender_id, image_urls[index], function() {
-            if (index < image_urls.length - 1) {
-                setTimeout(function() {
-                    sendBatchImage(sender_id, image_urls, index + 1, callback)
-                }, 1500)
-            } else {
-                if (callback) callback()
-            }
-        })
-
-    }
-
-    function sendImage(sender_id, image_url, callback) {
-        request({
-            baseUrl: MAIN,
-            uri: '/send-image',
-            qs: {
-                sender_id,
-                image_url
-            }
-        }, function(err) {
-            if (err)
-                console.log(err.toString())
-            else
-                console.log(`Successfully sent ${image_url}`)
-            if (callback) callback()
-        })
-    }
-
-
-    function sendText(sender_id, text, callback) {
-        request({
-            baseUrl: MAIN,
-            uri: '/send-text',
-            qs: {
-                sender_id,
-                text
-            }
-        }, function(err) {
-            if (err)
-                console.log(err.toString())
-            else
-                console.log(`Successfully sent message: ${text}`)
-            if (callback) callback()
-        })
-    }
 
     function validateToken(req, res, next) {
         if (req.query.token !== TOKEN)
