@@ -14,4 +14,5 @@ module.exports = [
   'https://guest-subprogram.000webhostapp.com',
   'https://unauthorised-sugar.000webhostapp.com',
   'http://ajoogle-se-02.16mb.com',
+  'http://ajoogle-se001.unsakini.com',
 ]
