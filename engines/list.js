@@ -17,4 +17,8 @@ module.exports = [
   'http://ajoogle-se001.unsakini.com',
   'http://ajoogle-se001.890m.com',
   'http://ajoogle-se002.esy.es',
+  'http://hehuhahi.890m.com',
+  'http://chomark.pe.hu',
+  'https://rattish-linens.000webhostapp.com',
+  'https://pinned-fatigue.000webhostapp.com',
 ]
