@@ -25,7 +25,7 @@ class Engine {
       json: true
     }, (error, response, urls) => {
       if (!error && urls && urls.length > 0) {
-        cb(error, urls)
+        cb(null, urls)
       } else {
         Engine.search(query, cb)
       }
