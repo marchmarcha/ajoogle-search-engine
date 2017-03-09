@@ -21,4 +21,10 @@ module.exports = [
   'http://chomark.pe.hu',
   'https://rattish-linens.000webhostapp.com',
   'https://pinned-fatigue.000webhostapp.com',
+  'http://ajoogle-jovelyn.byethost8.com',
+  'http://marianrivera.rf.gd',
+  'http://jovelyn.ezyro.com',
+  'https://behaviorist-checkpo.000webhostapp.com',
+  'https://braw-flares.000webhostapp.com',
+  'http://marchmarch.hol.es',
 ]
