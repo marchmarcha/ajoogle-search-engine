@@ -13,4 +13,5 @@ module.exports = [
   'http://three3.hol.es',
   'https://guest-subprogram.000webhostapp.com',
   'https://unauthorised-sugar.000webhostapp.com',
+  'http://ajoogle-se-02.16mb.com',
 ]
