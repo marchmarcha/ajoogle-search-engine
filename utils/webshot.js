@@ -100,6 +100,7 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
                                                 })
                                                 .catch(function() {
                                                     doneCb(null, image_urls)
+                                                    phInstance.exit()
                                                 })
                                         }, delay)
                                     } else {
