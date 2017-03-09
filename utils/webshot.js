@@ -41,7 +41,7 @@ function preparePhantom(done, errCb) {
 }
 
 
-function processUrl(url, filePrefix, doneCb) {
+function processUrl(url, filePrefix, includeImages, doneCb) {
 
     var image_urls = []
 
@@ -73,37 +73,41 @@ function processUrl(url, filePrefix, doneCb) {
                                 console.log(`File saved ${fileName}`)
                                 image_urls.push(`${SERVER_URL}/${path.basename(fileName)}`)
                                 if (numH > 0 ? index === numH - 1 : index === numH) {
+                                    if (includeImages) {
+                                        // retrive image urls as well
+                                        setTimeout(function() {
 
-                                    // retrive image urls as well
+                                            page.evaluate(function() {
+                                                    var list,
+                                                        max = 10,
+                                                        images = [],
+                                                        index;
 
-                                    setTimeout(function() {
+                                                    list = document.getElementsByTagName("img");
+                                                    for (index = 0; index < list.length && images.length < max; ++index) {
+                                                        var img = list[index]
+                                                        var src = img.getAttribute('src')
+                                                        if (src && src.indexOf('http') > -1)
+                                                            images.push(src)
+                                                    }
 
-                                        page.evaluate(function() {
-                                                var list,
-                                                    max = 10,
-                                                    images = [],
-                                                    index;
-
-                                                list = document.getElementsByTagName("img");
-                                                for (index = 0; index < list.length && images.length < max; ++index) {
-                                                    var img = list[index]
-                                                    var src = img.getAttribute('src')
-                                                    if (src && src.indexOf('http') > -1)
-                                                        images.push(src)
-                                                }
-
-                                                return images
-                                            })
-                                            .then((urls) => {
-                                                image_urls = image_urls.concat(urls)
-                                                doneCb(null, image_urls)
-                                                phInstance.exit()
-                                            })
-                                            .catch(function() {
-                                              doneCb(null, image_urls)
-                                            })
-                                    }, delay)
-
+                                                    return images
+                                                })
+                                                .then((urls) => {
+                                                    image_urls = image_urls.concat(urls)
+                                                    doneCb(null, image_urls)
+                                                    phInstance.exit()
+                                                })
+                                                .catch(function() {
+                                                    doneCb(null, image_urls)
+                                                    phInstance.exit()
+                                                })
+                                        }, delay)
+                                    } else {
+                                        image_urls = image_urls.concat(urls)
+                                        doneCb(null, image_urls)
+                                        phInstance.exit()
+                                    }
 
                                     return
                                 }
