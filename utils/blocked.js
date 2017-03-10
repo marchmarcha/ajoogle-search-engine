@@ -5,6 +5,7 @@ let blocked = [
   'about.com',
   'symptomfind.com',
   'alhea.com',
+  'netfind.com',
 ]
 
 let reg = blocked.join('|')
