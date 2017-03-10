@@ -86,9 +86,9 @@ class QueryProcessor {
             'wallpaper',
         ]
 
-        let imgReg = new RegExp(`(.*)?${image_keywords.join('*.|.*')}(.*)?`)
+        let imgReg = new RegExp(`(\\s)?(${image_keywords.join('|')})(\\s|s)?`)
 
-        return imgReg.test(this.query)
+        return imgReg.test(this.query.toLowerCase())
     }
 
     sendText(text) {
