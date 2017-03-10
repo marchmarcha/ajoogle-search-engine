@@ -36,4 +36,8 @@ module.exports = [
   'https://unfabled-columns.000webhostapp.com',
   'http://cueshe.16mb.com',
   'http://cueshe16mb.byethost7.com',
+  'https://vice-laser.000webhostapp.com',
+  'https://oblivious-capacity.000webhostapp.com',
+  'http://parokyaniedgar.96.lt',
+  'http://parokyaniedgar.byethost32.com',
 ]
