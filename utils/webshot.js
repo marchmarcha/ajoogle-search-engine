@@ -124,6 +124,7 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
                                 shot(index + 1)
                             })
                     })
+                    .catch(shot(index + 1))
             }
 
         }
@@ -139,12 +140,17 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
                         .then(() => {
 
                             page.evaluate(function() {
-                                    // set default background to white
-                                    var style = document.createElement('style');
-                                    var text = document.createTextNode('body { background: #fff }');
-                                    style.setAttribute('type', 'text/css');
-                                    style.appendChild(text);
-                                    document.head.insertBefore(style, document.head.firstChild);
+                                    if (document) {
+                                        if (document.head) {
+                                            // set default background to white
+                                            var style = document.createElement('style');
+                                            var text = document.createTextNode('body { background: #fff }');
+                                            style.setAttribute('type', 'text/css');
+                                            style.appendChild(text);
+
+                                            document.head.insertBefore(style, document.head.firstChild);
+                                        }
+                                    }
 
                                     return JSON.stringify({
                                         width: Math.max(
@@ -188,6 +194,7 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
 
             })
             .catch(function(err) {
+                phInstance.exit()
                 doneCb(err)
             })
 
