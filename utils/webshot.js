@@ -8,7 +8,7 @@ const path = require('path')
 
 const shotSize = {
     width: 1024,
-    height: (1024 * 4) / 3
+    height: (1024 * 8) / 5 // aspec ratio 8:5
 }
 
 const viewportSize = {
@@ -48,9 +48,8 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
 
     preparePhantom(function(phInstance, page) {
 
-        function grabScreen(dimension) {
+        function grabScreen(dims) {
 
-            var dims = JSON.parse(dimension)
             var numH = Math.floor(dims.height / shotSize.height)
 
             shot(0)
@@ -105,27 +104,28 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
                                                     phInstance.exit()
                                                 })
                                         }, delay)
-                                    } else {
-                                        image_urls = image_urls.concat(urls)
-                                        doneCb(null, image_urls)
-                                        phInstance.exit()
+                                        return
                                     }
 
+                                    image_urls = image_urls.concat(urls)
+                                    doneCb(null, image_urls)
+                                    phInstance.exit()
                                     return
+
                                 }
                                 shot(index + 1)
                             })
                             .catch(function() {
-                                if (numH > 0 ? index === numH - 1 : index === numH) {
-                                    doneCb(null, image_urls)
-                                    phInstance.exit()
-                                    return
-                                }
-                                shot(index + 1)
+                                doneCb(null, image_urls)
+                                phInstance.exit()
                             })
                     })
-                    .catch(shot(index + 1))
-            }
+                    .catch(function() {
+                        doneCb(null, image_urls)
+                        phInstance.exit()
+                    })
+
+            } // end shot()
 
         }
 
@@ -170,6 +170,8 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
                                     })
                                 })
                                 .then((dimension) => {
+
+                                  dimension = JSON.parse(dimension)
 
                                     page.setting('javascriptEnabled', javascriptEnabled)
                                         .then(function() {
