@@ -86,7 +86,7 @@ class QueryProcessor {
             'wallpaper',
         ]
 
-        let imgReg = new RegExp(`.*${image_keywords.join('*.|.*')}.*`)
+        let imgReg = new RegExp(`(.*)?${image_keywords.join('*.|.*')}(.*)?`)
 
         return imgReg.test(this.query)
     }
