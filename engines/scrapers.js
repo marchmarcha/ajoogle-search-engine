@@ -25,7 +25,9 @@ class Engine {
       qs: {q: query.q},
       json: true
     }, (error, response, urls) => {
-      if (!error && (Object.prototype.toString.call(urls) === '[object Array]') ) {
+      let isArray = (Object.prototype.toString.call(urls) === '[object Array]')
+      let validResult = isArray ? urls.length > 0 : false
+      if (!error &&  validResult) {
         cb(null, urls)
       } else {
         Engine.search(query, cb)
