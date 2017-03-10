@@ -8,7 +8,7 @@ const path = require('path')
 
 const shotSize = {
     width: 1024,
-    height: (1024 * 4) / 3 // aspec ratio 4:3
+    height: 1024 * (3 / 2) // aspec ratio 3:2
 }
 
 const viewportSize = {
@@ -171,7 +171,7 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
                                 })
                                 .then((dimension) => {
 
-                                  dimension = JSON.parse(dimension)
+                                    dimension = JSON.parse(dimension)
 
                                     page.setting('javascriptEnabled', javascriptEnabled)
                                         .then(function() {
