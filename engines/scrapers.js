@@ -20,7 +20,8 @@ class Engine {
     console.log(query)
 
     request({
-      url: engine,
+      baseUrl: engine,
+      uri: '/',
       qs: {q: query.q},
       json: true
     }, (error, response, urls) => {
