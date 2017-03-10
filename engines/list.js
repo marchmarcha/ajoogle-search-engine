@@ -41,4 +41,9 @@ module.exports = [
   'http://parokyaniedgar.96.lt',
   'http://parokyaniedgar.byethost32.com',
   'http://ocharankkong.epizy.com',
+  'https://rammish-administrat.000webhostapp.com',
+  'https://cryptonymous-inclin.000webhostapp.com',
+  'http://fdomain-kkk.pe.hu',
+  'http://iflixeble.rf.gd',
+  'http://iflixeble.byethost32.com',
 ]
