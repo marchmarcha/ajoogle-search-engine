@@ -31,5 +31,9 @@ module.exports = [
   'https://merino-rheostats.000webhostapp.com',
   'http://hahiehei.890m.com',
   'http://acheche.x10host.com',
-  'http://acheche.x10host.com',
+  'http://hahehihohu.byethost15.com',
+  'https://petrous-lieutenant.000webhostapp.com',
+  'https://unfabled-columns.000webhostapp.com',
+  'http://cueshe.16mb.com',
+  'http://cueshe16mb.byethost7.com',
 ]
