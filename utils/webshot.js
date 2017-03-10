@@ -8,7 +8,7 @@ const path = require('path')
 
 const shotSize = {
     width: 1024,
-    height: 768 * 2
+    height: (1024 * 4) / 3
 }
 
 const viewportSize = {
@@ -33,10 +33,11 @@ function preparePhantom(done, errCb) {
             return instance.createPage()
         })
         .then(page => {
+            sitepage = page
             done(phInstance, page)
         })
         .catch(function(err) {
-            errCb(err, phInstance, page)
+            errCb(err, phInstance, sitepage)
         })
 }
 
@@ -73,7 +74,7 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
                                 console.log(`File saved ${fileName}`)
                                 image_urls.push(`${SERVER_URL}/${path.basename(fileName)}`)
                                 if (numH > 0 ? index === numH - 1 : index === numH) {
-                                // done take webshots
+                                    // done take webshots
                                     if (includeImages) {
                                         // retrive image urls as well
                                         setTimeout(function() {
