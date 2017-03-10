@@ -8,7 +8,7 @@ const path = require('path')
 
 const shotSize = {
     width: 1024,
-    height: 768 * 2.5
+    height: 768 * 2
 }
 
 const viewportSize = {
