@@ -55,7 +55,7 @@ function start() {
 
         let queryProcessor = new QueryProcessor(engine, sender_id, q, query_id, max)
 
-            .done(function() {
+            queryProcessor.done(function() {
 
                 clientCount = clientCount - 1
 
