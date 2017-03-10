@@ -90,6 +90,7 @@ class QueryProcessor {
             'pics',
             'background',
             'wallpaper',
+            'graphic',
         ]
 
         let imgReg = new RegExp(`(\\s)?(${image_keywords.join('|')})(\\s|s)?`)
