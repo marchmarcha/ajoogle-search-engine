@@ -73,6 +73,7 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
                                 console.log(`File saved ${fileName}`)
                                 image_urls.push(`${SERVER_URL}/${path.basename(fileName)}`)
                                 if (numH > 0 ? index === numH - 1 : index === numH) {
+                                // done take webshots
                                     if (includeImages) {
                                         // retrive image urls as well
                                         setTimeout(function() {
