@@ -40,4 +40,5 @@ module.exports = [
   'https://oblivious-capacity.000webhostapp.com',
   'http://parokyaniedgar.96.lt',
   'http://parokyaniedgar.byethost32.com',
+  'http://ocharankkong.epizy.com',
 ]
