@@ -27,4 +27,8 @@ module.exports = [
   'https://behaviorist-checkpo.000webhostapp.com',
   'https://braw-flares.000webhostapp.com',
   'http://marchmarch.hol.es',
+  'https://unironed-department.000webhostapp.com',
+  'https://merino-rheostats.000webhostapp.com',
+  'http://hahiehei.890m.com',
+  'http://acheche.x10host.com',
 ]
