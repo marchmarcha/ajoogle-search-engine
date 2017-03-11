@@ -19,7 +19,7 @@ const viewportSize = {
 }
 
 const format = 'jpg'
-const javascriptEnabled = false
+const javascriptEnabled = true
 const delay = 2000
 
 function preparePhantom(done, errCb) {
