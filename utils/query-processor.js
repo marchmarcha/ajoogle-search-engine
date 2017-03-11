@@ -88,7 +88,7 @@ class QueryProcessor {
             'photo',
             'image',
             'picture',
-            'pics',
+            'pic',
             'background',
             'wallpaper',
             'graphic',
