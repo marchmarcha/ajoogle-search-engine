@@ -80,7 +80,7 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
 
                                             page.evaluate(function() {
                                                     var list,
-                                                        max = 10,
+                                                        max = 20,
                                                         images = [],
                                                         index;
 
