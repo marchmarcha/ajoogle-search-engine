@@ -5,6 +5,7 @@ const PORT = process.env.PORT || config.get('port')
 const SERVER_URL = (ENV === 'development') ? `${SERVER}:${PORT}` : SERVER
 const phantom = require('phantom')
 const path = require('path')
+const fs = require('fs')
 
 const shotSize = {
     width: 1024,
@@ -42,15 +43,16 @@ function preparePhantom(done, errCb) {
 }
 
 
-function processUrl(url, filePrefix, includeImages, doneCb) {
+function webShot(url, filePrefix, includeImages, doneCb) {
 
     var image_urls = []
+    var customJs = fs.readFileSync(path.join(__dirname, 'webshot-script.js'), 'utf8')
 
     preparePhantom(function(phInstance, page) {
 
         function grabScreen(dims) {
 
-            var numH = Math.floor(dims.height / shotSize.height)
+            var numH = Math.round(dims.height / shotSize.height)
 
             shot(0)
 
@@ -73,6 +75,7 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
                                 console.log(`File saved ${fileName}`)
                                 image_urls.push(`${SERVER_URL}/${path.basename(fileName)}`)
                                 if (numH > 0 ? index === numH - 1 : index === numH) {
+                                    // if (index === numH - 1) {
                                     // done take webshots
                                     if (includeImages) {
                                         // retrive image urls as well
@@ -129,76 +132,64 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
 
         }
 
+        page.on('onResourceRequested', true, function(requestData, networkRequest) {
+            // dont load js files
+            // if (requestData.url.indexOf('.js') > -1) {
+            //     console.log('Aborting request: ' + requestData.url)
+            //     networkRequest.abort()
+            // }
+        })
 
-        console.log(`Openning URL: ${url}`)
-        page.open(url).then(function() {
-                console.log(`Done loading page: ${url}`)
 
-                setTimeout(function() {
+        page.property('viewportSize', viewportSize)
+            .then(() => {
 
-                    page.property('viewportSize', viewportSize)
-                        .then(() => {
+                console.log(`Openning URL: ${url}`)
+                page.open(url).then(function(success) {
+                        console.log(`Done loading page: ${url}`)
+                        console.log(`Load status: ${success}`)
 
-                            page.evaluate(function() {
-                                    if (document) {
-                                        if (document.head) {
-                                            // set default background to white
-                                            var style = document.createElement('style');
-                                            var text = document.createTextNode('body { background: #fff }');
-                                            style.setAttribute('type', 'text/css');
-                                            style.appendChild(text);
+                        if (success !== 'success') {
+                            doneCb(new Error(`Can\'t load URL: ${url}`))
+                        }
 
-                                            document.head.insertBefore(style, document.head.firstChild);
-                                        }
-                                    }
+                        page.evaluateJavaScript(customJs)
+                            .then((dimension) => {
 
-                                    return JSON.stringify({
-                                        width: Math.max(
-                                            document.body.offsetWidth,
-                                            document.body.scrollWidth,
-                                            document.documentElement.clientWidth,
-                                            document.documentElement.scrollWidth,
-                                            document.documentElement.offsetWidth
-                                        ),
-                                        height: Math.max(
-                                            document.body.offsetHeight,
-                                            document.body.scrollHeight,
-                                            document.documentElement.clientHeight,
-                                            document.documentElement.scrollHeight,
-                                            document.documentElement.offsetHeight
-                                        )
+                                dimension = JSON.parse(dimension)
+
+                                page.setting('javascriptEnabled', javascriptEnabled)
+                                    .then(function() {
+                                        grabScreen(dimension)
                                     })
-                                })
-                                .then((dimension) => {
-
-                                    dimension = JSON.parse(dimension)
-
-                                    page.setting('javascriptEnabled', javascriptEnabled)
-                                        .then(function() {
-                                            grabScreen(dimension)
-                                        })
-                                        .catch(function() {
-                                            grabScreen(dimension)
-                                        })
+                                    .catch(function() {
+                                        grabScreen(dimension)
+                                    })
 
 
-                                })
-                                .catch(function() {
-                                    grabScreen(shotSize)
-                                })
+                            })
+                            .catch(function(err) {
+                              phInstance.exit()
+                              doneCb(err)
+                            })
 
 
-                        })
-                        .catch(function() {
-                            grabScreen(shotSize)
-                        })
-                }, delay)
+                    })
+                    .catch(function(err) {
+                        phInstance.exit()
+                        doneCb(err)
+                    })
+
+
+
+
 
             })
-            .catch(function(err) {
-                phInstance.exit()
-                doneCb(err)
+            .catch(function() {
+                grabScreen(shotSize)
             })
+
+
 
     }, function(err, phInstance, page) {
         phInstance.exit()
@@ -208,8 +199,8 @@ function processUrl(url, filePrefix, includeImages, doneCb) {
 
 }
 
-module.exports = processUrl
+module.exports = webShot
 
-// processUrl('https://github.com/amir20/phantomjs-node', 123456, function (err, results) {
+// webShot('https://github.com/amir20/phantomjs-node', 123456, function (err, results) {
 //   console.log(results)
 // })

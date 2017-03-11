@@ -56,7 +56,8 @@ class QueryProcessor {
         console.log(`includeImages: ${this.includeImages()}`)
         webshot(link, this.sender_id, this.includeImages(), (err, image_urls) => {
             if (err) {
-                next()
+                console.log('Webshot errlr: ', err)
+                this.nextLink()
             } else {
                 this.successCount += 1
                 this.eachLinkResult(image_urls)
