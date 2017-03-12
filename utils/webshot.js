@@ -85,13 +85,16 @@ function webShot(url, filePrefix, includeImages, doneCb) {
                                                     var list,
                                                         max = 20,
                                                         images = [],
-                                                        index;
+                                                        index,
+                                                        minSize = 150;
 
                                                     list = document.getElementsByTagName("img");
                                                     for (index = 0; index < list.length && images.length < max; ++index) {
                                                         var img = list[index]
                                                         var src = img.getAttribute('src')
-                                                        if (src && src.indexOf('http') > -1)
+                                                        var width = img.clientWidth
+                                                        var height = img.clientHeight
+                                                        if (src && (src.indexOf('http') > -1) && (width >= minSize) && (height >= minSize))
                                                             images.push(src)
                                                     }
 

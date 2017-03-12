@@ -11,22 +11,6 @@ function() {
 
             document.head.insertBefore(style, document.head.firstChild);
 
-
-            //remove modal in photobucket
-            // var script = document.createElement('script');
-            // var scriptText = "var modals = document.getElementsByClassName('modal');";
-            // scriptText += "for (var i = 0; i < modals.length; i++)" +
-            //               "{ modals[i].style.display = 'none'; }";
-            // scriptText += "var backdrops = document.getElementsByClassName('modal-backdrop');";
-            // scriptText += "for (var i = 0; i < backdrops.length; i++)" +
-            //               "{ backdrops[i].style.display = 'none'; }";
-
-            // var scriptTextNode = document.createTextNode(scriptText);
-            // script.setAttribute('type', 'text/javascript');
-            // script.appendChild(scriptTextNode);
-            // document.head.insertBefore(script, document.head.firstChild);
-
-
             var modals = document.getElementsByClassName('modal')
             var backdrops = document.getElementsByClassName('modal-backdrop')
 
