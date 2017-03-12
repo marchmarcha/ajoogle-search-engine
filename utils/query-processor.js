@@ -5,7 +5,7 @@ const config = require('config')
 const MAIN_SERVER = process.env.MAIN || config.get('main')
 const PORT = process.env.PORT || config.get('port')
 const blocked = require('./blocked')
-const webshot = require('./webshot')
+const WebShot = require('./webshot')
 const request = require('request')
 
 class QueryProcessor {
@@ -54,16 +54,24 @@ class QueryProcessor {
 
     generateImageUrls() {
         let link = this.links[this.linkProcessIndex]
-        console.log(`includeImages: ${this.includeImages()}`)
-        webshot(link, this.sender_id, this.includeImages(), (err, image_urls) => {
-            if (err) {
-                console.log('Webshot errlr: ', err)
-                this.nextLink()
-            } else {
-                this.successCount += 1
-                this.eachLinkResult(image_urls)
-            }
-        })
+        this.webshot = new WebShot(link)
+
+        this.webshot
+            .filePrefix(this.sender_id)
+            .includeImages(this.includeImages())
+            .capture((err, image_urls) => {
+                if (err) {
+                    console.log('Webshot error: ', err)
+                    if (!this.stopped)
+                      this.nextLink()
+                    else
+                      this.doneCallback()
+                } else {
+                    this.successCount += 1
+                    this.eachLinkResult(image_urls)
+                }
+            })
+
     }
 
     eachLinkResult(image_urls) {
@@ -76,7 +84,7 @@ class QueryProcessor {
     }
 
     nextLink() {
-        if (this.successCount >= this.max || this.linkProcessIndex === this.links.length - 1) {
+        if (this.successCount >= this.max || this.linkProcessIndex === this.links.length - 1 || this.stopped) {
             this.finished()
         } else {
             this.linkProcessIndex += 1
@@ -168,10 +176,8 @@ class QueryProcessor {
     }
 
     stop() {
-        this.max = 0
-        this.successCount = this.max
         this.stopped = true
-        this.doneCallback()
+        if (this.webshot) this.webshot.stop()
         console.log('Stopped query: ' + this.query)
     }
 
@@ -180,7 +186,6 @@ class QueryProcessor {
     }
 
 }
-
 
 module.exports = QueryProcessor
     // let qp = new QueryProcessor(require('ddg-scraper'), 1234, 'query...', 2)

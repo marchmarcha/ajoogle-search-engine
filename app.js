@@ -29,9 +29,9 @@ function start() {
     let engine = require('./engines/scrapers')
 
     // mock some services on local
-    // if (env === 'development') {
-    //     engine = require('./mocks/engine')
-    // }
+    if (env === 'development') {
+        engine = require('./mocks/engine')
+    }
 
     const app = express()
 

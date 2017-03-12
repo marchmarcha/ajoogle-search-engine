@@ -6,204 +6,183 @@ const SERVER_URL = (ENV === 'development') ? `${SERVER}:${PORT}` : SERVER
 const phantom = require('phantom')
 const path = require('path')
 const fs = require('fs')
-
 const shotSize = {
     width: 1024,
     height: 1024 * (3 / 2) // aspec ratio 3:2
 }
-
 const viewportSize = {
     top: 0,
     left: 0,
     width: 1024,
     height: 768
 }
-
-const format = 'jpg'
 const javascriptEnabled = true
 const delay = 2000
+const customJs = fs.readFileSync(path.join(__dirname, 'webshot-script.js'), 'utf8')
+const format = 'jpg'
 
-function preparePhantom(done, errCb) {
+class WebShot {
 
-    var sitepage = null;
-    var phInstance = null;
+    constructor(url) {
+        this.url = url
+        this.page = null;
+        this.phInstance = null;
+        this.imageUrls = []
+        this.dimension = viewportSize
+        this.numClips = 0
+        return this
+    }
 
-    phantom.create()
-        .then(instance => {
-            phInstance = instance
-            return instance.createPage()
-        })
-        .then(page => {
-            sitepage = page
-            done(phInstance, page)
-        })
-        .catch(function(err) {
-            errCb(err, phInstance, sitepage)
-        })
-}
+    filePrefix(filePrefix) {
+        this.filePrefix = filePrefix
+        return this
+    }
 
+    includeImages(includeImages) {
+        console.log(`Include Images: ${includeImages}`)
+        this.includeImages = includeImages
+        return this
+    }
 
-function webShot(url, filePrefix, includeImages, doneCb) {
+    capture(cb) {
+        this.doneCb = cb
+        this.preparePhantom()
+    }
 
-    var image_urls = []
-    var customJs = fs.readFileSync(path.join(__dirname, 'webshot-script.js'), 'utf8')
+    preparePhantom() {
+        console.log(`Preparing phantom`)
+        phantom.create()
+            .then(instance => {
+                console.log(`Phantom ready.`)
+                this.phInstance = instance
+                return instance.createPage()
+            })
+            .then(page => {
+                console.log(`Page ready.`)
+                this.page = page
+                this.setupPage()
+            })
+            .catch(this.onError)
+    }
 
-    preparePhantom(function(phInstance, page) {
+    setupPage() {
 
-        function grabScreen(dims) {
-
-            var numH = Math.round(dims.height / shotSize.height)
-
-            shot(0)
-
-            function shot(index) {
-
-                var fileName = `${filePrefix}-${(new Date()).getTime()}.${format}`
-                fileName = path.join(__dirname, '../public', fileName)
-                var top = index * shotSize.height
-                var bottom = index === numH ? dims.height % shotSize.height : shotSize.height + 20
-
-                page.property('clipRect', {
-                        top: top,
-                        left: 0,
-                        width: shotSize.width,
-                        height: bottom
-                    })
-                    .then(() => {
-                        page.render(fileName)
-                            .then(function() {
-                                console.log(`File saved ${fileName}`)
-                                image_urls.push(`${SERVER_URL}/${path.basename(fileName)}`)
-                                if (numH > 0 ? index === numH - 1 : index === numH) {
-                                    // if (index === numH - 1) {
-                                    // done take webshots
-                                    if (includeImages) {
-                                        // retrive image urls as well
-                                        setTimeout(function() {
-
-                                            page.evaluate(function() {
-                                                    var list,
-                                                        max = 20,
-                                                        images = [],
-                                                        index,
-                                                        minSize = 150;
-
-                                                    list = document.getElementsByTagName("img");
-                                                    for (index = 0; index < list.length && images.length < max; ++index) {
-                                                        var img = list[index]
-                                                        var src = img.getAttribute('src')
-                                                        var width = img.clientWidth
-                                                        var height = img.clientHeight
-                                                        if (src && (src.indexOf('http') > -1) && (width >= minSize) && (height >= minSize))
-                                                            images.push(src)
-                                                    }
-
-                                                    return images
-                                                })
-                                                .then((urls) => {
-                                                    image_urls = image_urls.concat(urls)
-                                                    doneCb(null, image_urls)
-                                                    phInstance.exit()
-                                                })
-                                                .catch(function() {
-                                                    doneCb(null, image_urls)
-                                                    phInstance.exit()
-                                                })
-                                        }, delay)
-                                        return
-                                    }
-
-                                    image_urls = image_urls.concat(urls)
-                                    doneCb(null, image_urls)
-                                    phInstance.exit()
-                                    return
-
-                                }
-                                shot(index + 1)
-                            })
-                            .catch(function() {
-                                doneCb(null, image_urls)
-                                phInstance.exit()
-                            })
-                    })
-                    .catch(function() {
-                        doneCb(null, image_urls)
-                        phInstance.exit()
-                    })
-
-            } // end shot()
-
-        }
-
-        page.on('onResourceRequested', true, function(requestData, networkRequest) {
-            // dont load js files
-            // if (requestData.url.indexOf('.js') > -1) {
-            //     console.log('Aborting request: ' + requestData.url)
-            //     networkRequest.abort()
-            // }
-        })
-
-
-        page.property('viewportSize', viewportSize)
+        this.page.setting('javascriptEnabled', javascriptEnabled)
             .then(() => {
+                this.page.property('viewportSize', viewportSize)
+                    .then(() => {
+                        console.log(`Openning URL: ${this.url}`)
+                        this.page.open(this.url)
+                            .then(status => {
+                                if (status === 'success') {
+                                    console.log(`Done loading URL: ${this.url}`)
+                                    this.page.evaluateJavaScript(customJs)
+                                        .then((dimsStr) => {
+                                            this.dimension = JSON.parse(dimsStr)
+                                            this.numClips = Math.round(this.dimension.height / shotSize.height)
+                                            this.shotClipViews()
+                                        })
+                                        .catch(this.onError)
+                                } else {
+                                    let err = new Error(`Failed loading URL: ${this.url}`)
+                                    this.onError(err)
+                                }
+                            })
+                            .catch(this.onError)
+                    })
+                    .catch(this.onError)
+            })
+            .catch(this.onError)
+    }
 
-                console.log(`Openning URL: ${url}`)
-                page.open(url).then(function(success) {
-                        console.log(`Done loading page: ${url}`)
-                        console.log(`Load status: ${success}`)
+    shotClipViews(index) {
+        index = index || 0
+        let baseName = `${this.filePrefix}-${(new Date()).getTime()}.${format}`
+        let fileName = path.join(__dirname, '../public', baseName)
+        let top = index * shotSize.height
+        let bottom = (index === this.numClips) ? (this.dimension.height % shotSize.height) : shotSize.height + 20
 
-                        if (success !== 'success') {
-                            doneCb(new Error(`Can\'t load URL: ${url}`))
+        this.page.property('clipRect', {
+                top: top,
+                left: 0,
+                width: shotSize.width,
+                height: bottom
+            })
+            .then(() => {
+                this.page.render(fileName)
+                    .then(() => {
+                        console.log(`File saved ${fileName}`)
+                        this.imageUrls.push(`${SERVER_URL}/${baseName}`)
+                        if (this.numClips > 0 ? index === this.numClips - 1 : index === this.numClips) {
+                            // done take webshots
+                            if (this.includeImages) {
+                                // retreive image urls as well
+                                setTimeout(() => {
+
+                                    this.page.evaluate(function() {
+                                            var list,
+                                                max = 20,
+                                                images = [],
+                                                index,
+                                                minSize = 150;
+
+                                            list = document.getElementsByTagName("img");
+                                            for (index = 0; index < list.length && images.length < max; ++index) {
+                                                var img = list[index]
+                                                var src = img.getAttribute('src')
+                                                var width = img.clientWidth
+                                                var height = img.clientHeight
+                                                if (src && (src.indexOf('http') > -1) && (width >= minSize) && (height >= minSize))
+                                                    images.push(src)
+                                            }
+
+                                            return images
+                                        })
+                                        .then((urls) => {
+                                            this.imageUrls = this.imageUrls.concat(urls)
+                                            this.doneCb(null, this.imageUrls)
+                                            this.exit()
+                                        })
+                                        .catch(this.onError)
+                                }, delay)
+                            } else {
+                                this.doneCb(null, this.imageUrls)
+                                this.exit()
+                                return
+                            }
+
                         }
 
-                        page.evaluateJavaScript(customJs)
-                            .then((dimension) => {
-
-                                dimension = JSON.parse(dimension)
-
-                                page.setting('javascriptEnabled', javascriptEnabled)
-                                    .then(function() {
-                                        grabScreen(dimension)
-                                    })
-                                    .catch(function() {
-                                        grabScreen(dimension)
-                                    })
-
-
-                            })
-                            .catch(function(err) {
-                              phInstance.exit()
-                              doneCb(err)
-                            })
-
+                        this.shotClipViews(index + 1)
 
                     })
-                    .catch(function(err) {
-                        phInstance.exit()
-                        doneCb(err)
-                    })
-
-
-
-
-
+                    .catch(this.onError)
             })
-            .catch(function() {
-                grabScreen(shotSize)
-            })
+            .catch(this.onError)
 
+    }
 
+    onError(err) {
+        this.exit()
+        this.doneCb(err)
+    }
 
-    }, function(err, phInstance, page) {
-        phInstance.exit()
-        doneCb(err)
+    exit() {
+        this.page.close().then(() => {
+            this.phInstance.exit()
+        }).catch(() => {
+            this.phInstance.exit()
+        })
+    }
 
-    })
+    stop() {
+        try {
+          this.exit()
+        } catch (e) {
+            console.log(`Error killing phantom instance: ${e.toString()}`)
+        }
+    }
 
 }
 
-module.exports = webShot
-
-// webShot('https://github.com/amir20/phantomjs-node', 123456, function (err, results) {
-//   console.log(results)
-// })
+module.exports = WebShot
