@@ -187,9 +187,15 @@ class WebShot {
     exit() {
         // if (this.phInstance) this.phInstance.exit()
         this.page.close().then(() => {
-            if (this.phInstance) this.phInstance.exit()
+            if (this.phInstance) {
+              this.phInstance.exit()
+              this.phInstance = null
+            }
         }).catch(() => {
-            if (this.phInstance) this.phInstance.exit()
+            if (this.phInstance) {
+              this.phInstance.exit()
+              this.phInstance = null
+            }
         })
 
     }
