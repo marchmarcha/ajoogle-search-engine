@@ -8,6 +8,7 @@ const config = require('config')
 const maxClient = process.env.MAX_CLIENT || config.get('maxClient')
 const QueryProcessor = require('./utils/query-processor')
 var clientCount = 0
+var queryProcessor = null
 
 throng({
     start: start,
@@ -53,14 +54,13 @@ function start() {
         let max = req.query.max * 1
         let query_id = req.query.query_id
 
-        let queryProcessor = new QueryProcessor(engine, sender_id, q, query_id, max)
+        queryProcessor = new QueryProcessor(engine, sender_id, q, query_id, max)
 
         queryProcessor.done(function() {
             // let the RAM rest
             setTimeout(() => {
                 clientCount = clientCount - 1
             }, 1.2 * 1000)
-
 
             setTimeout(() => {
                 console.log(`Deleting files ./public/${sender_id}*`)
@@ -70,12 +70,21 @@ function start() {
                         console.log('Deleted file:\n', paths.join('\n'));
                     })
                 }
-            }, 2500)
+            }, 30 * 1000)
 
         })
 
         res.send()
 
+    })
+
+    app.get('/stop', function(req, res) {
+        console.log('Stopping ...')
+        if (queryProcessor) {
+            queryProcessor.stop()
+            clientCount -= 1
+        }
+        res.send({ status: 'ok' })
     })
 
     function validateToken(req, res, next) {

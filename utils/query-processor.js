@@ -19,6 +19,7 @@ class QueryProcessor {
         this.successCount = 0
         this.linkProcessIndex = 0
         this.imageSendIndex = 0
+        this.stopped = false
         this.processQuery()
 
         return this
@@ -102,6 +103,7 @@ class QueryProcessor {
     }
 
     sendText(text) {
+        if (this.stopped) return
         request({
             baseUrl: MAIN_SERVER,
             uri: '/send-text',
@@ -119,6 +121,7 @@ class QueryProcessor {
     }
 
     sendImage(image_url, callback) {
+        if (this.stopped) return
         request({
             baseUrl: MAIN_SERVER,
             uri: '/send-image',
@@ -162,6 +165,14 @@ class QueryProcessor {
                 this.sendText(`No results found for "${this.query}".`)
         }, 2500)
         this.doneCallback()
+    }
+
+    stop() {
+        this.max = 0
+        this.successCount = this.max
+        this.stopped = true
+        this.doneCallback()
+        console.log('Stopped query: ' + this.query)
     }
 
     done(fn) {
