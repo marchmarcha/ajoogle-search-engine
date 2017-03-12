@@ -84,7 +84,9 @@ class WebShot {
                                             this.numClips = Math.round(this.dimension.height / shotSize.height)
                                             this.shotClipViews()
                                         })
-                                        .catch(this.onError)
+                                        .catch(err => {
+                                            this.onError(err)
+                                        })
                                 } else {
                                     let err = new Error(`Failed loading URL: ${this.url}`)
                                     this.onError(err)
@@ -161,9 +163,10 @@ class WebShot {
                                 return
                             }
 
+                        } else {
+                            this.shotClipViews(index + 1)
                         }
 
-                        this.shotClipViews(index + 1)
 
                     })
                     .catch(err => {
@@ -182,11 +185,13 @@ class WebShot {
     }
 
     exit() {
+        // if (this.phInstance) this.phInstance.exit()
         this.page.close().then(() => {
             if (this.phInstance) this.phInstance.exit()
         }).catch(() => {
             if (this.phInstance) this.phInstance.exit()
         })
+
     }
 
     stop() {
