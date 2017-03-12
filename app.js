@@ -55,22 +55,24 @@ function start() {
 
         let queryProcessor = new QueryProcessor(engine, sender_id, q, query_id, max)
 
-            queryProcessor.done(function() {
-
+        queryProcessor.done(function() {
+            // let the RAM rest
+            setTimeout(() => {
                 clientCount = clientCount - 1
+            }, 1.2 * 1000)
 
-                setTimeout(() => {
 
-                    console.log(`Deleting files ./public/${sender_id}*`)
+            setTimeout(() => {
+                console.log(`Deleting files ./public/${sender_id}*`)
 
-                    if (env === 'production') {
-                        del([`./public/${sender_id}*`]).then(paths => {
-                            console.log('Deleted file:\n', paths.join('\n'));
-                        })
-                    }
+                if (env === 'production') {
+                    del([`./public/${sender_id}*`]).then(paths => {
+                        console.log('Deleted file:\n', paths.join('\n'));
+                    })
+                }
+            }, 2500)
 
-                }, 2500)
-            })
+        })
 
         res.send()
 
