@@ -70,7 +70,7 @@ function start() {
                         console.log('Deleted file:\n', paths.join('\n'));
                     })
                 }
-            }, 30 * 1000)
+            }, 3 * 1000)
 
         })
 

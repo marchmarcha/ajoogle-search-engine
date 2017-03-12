@@ -62,7 +62,9 @@ class WebShot {
                 this.page = page
                 this.setupPage()
             })
-            .catch(this.onError)
+            .catch(err => {
+                this.onError
+            })
     }
 
     setupPage() {
@@ -88,11 +90,17 @@ class WebShot {
                                     this.onError(err)
                                 }
                             })
-                            .catch(this.onError)
+                            .catch(err => {
+                                this.onError(err)
+                            })
                     })
-                    .catch(this.onError)
+                    .catch(err => {
+                        this.onError
+                    })
             })
-            .catch(this.onError)
+            .catch(err => {
+                this.onError
+            })
     }
 
     shotClipViews(index) {
@@ -143,7 +151,9 @@ class WebShot {
                                             this.doneCb(null, this.imageUrls)
                                             this.exit()
                                         })
-                                        .catch(this.onError)
+                                        .catch(err => {
+                                            this.onError(err)
+                                        })
                                 }, delay)
                             } else {
                                 this.doneCb(null, this.imageUrls)
@@ -156,9 +166,13 @@ class WebShot {
                         this.shotClipViews(index + 1)
 
                     })
-                    .catch(this.onError)
+                    .catch(err => {
+                        this.onError(err)
+                    })
             })
-            .catch(this.onError)
+            .catch(err => {
+                this.onError(err)
+            })
 
     }
 
@@ -169,15 +183,15 @@ class WebShot {
 
     exit() {
         this.page.close().then(() => {
-            this.phInstance.exit()
+            if (this.phInstance) this.phInstance.exit()
         }).catch(() => {
-            this.phInstance.exit()
+            if (this.phInstance) this.phInstance.exit()
         })
     }
 
     stop() {
         try {
-          this.exit()
+            this.exit()
         } catch (e) {
             console.log(`Error killing phantom instance: ${e.toString()}`)
         }
