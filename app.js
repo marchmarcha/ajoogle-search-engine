@@ -57,12 +57,9 @@ function start() {
         queryProcessor = new QueryProcessor(engine, sender_id, q, query_id, max)
 
         queryProcessor.done(function() {
-            // let the RAM rest
-            setTimeout(() => {
-                clientCount = clientCount - 1
-            }, 1.2 * 1000)
 
             setTimeout(() => {
+                clientCount = clientCount - 1
                 console.log(`Deleting files ./public/${sender_id}*`)
 
                 if (env === 'production') {
