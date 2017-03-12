@@ -84,7 +84,7 @@ class QueryProcessor {
     }
 
     nextLink() {
-        if (this.successCount >= this.max || this.linkProcessIndex === this.links.length - 1 || this.stopped) {
+        if (this.successCount >= this.max || this.linkProcessIndex === this.links.length - 1) {
             this.finished()
         } else {
             this.linkProcessIndex += 1
