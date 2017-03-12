@@ -53,7 +53,10 @@ class QueryProcessor {
 
             this.max = this.links.length > this.max ? this.max : this.links.length
 
-            this.generateImageUrls()
+            if (this.canContinue())
+              this.generateImageUrls()
+            else
+              this.finished()
         })
     }
 
