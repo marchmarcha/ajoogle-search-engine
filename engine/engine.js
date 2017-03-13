@@ -1,6 +1,6 @@
 'use strict'
 
-const ENGINES = require('./list')
+const ENGINES = require('./scrapers')
 const request = require('request')
 const cheerio = require('cheerio')
 const blocked = require('./blocked')
