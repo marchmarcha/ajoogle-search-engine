@@ -112,6 +112,7 @@ class QueryProcessor {
             'logo',
             'icon',
             'design',
+            'animate',
         ]
 
         let imgReg = new RegExp(`(\\s)?(${image_keywords.join('|')})(\\s|s)?`)
