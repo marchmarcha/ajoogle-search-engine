@@ -64,6 +64,7 @@ class WebShot {
                 this.outObj = this.phInstance.createOutObject()
                 this.outObj.adblock = adblock
                 page.on('onResourceRequested', true, function(requestData, networkRequest, out) {
+                    // dont load ads and images
                     if (out.adblock(requestData.url) || (new RegExp(/(.*\.(?:png|jpg|gif|jpeg))/i)).test(requestData.url)) {
                         console.log('Aborting resource: ' + requestData.url)
                         networkRequest.abort()
